@@ -1,16 +1,19 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 dotenv.config();
 import cors from 'cors';
 import connectDB from './configs/database.config.js';
 import userRoute from './routes/user.route.js';
 import dashboardRoute from './routes/dashboard.route.js';
+import newsRoute from './routes/news.route.js';
 
 const PORT = process.env.PORT || 5000;
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 connectDB();
 
@@ -23,6 +26,7 @@ app.get('/api/v1/npw', (req, res) => {
 
 app.use('/api/v1/npw/auth', userRoute);
 app.use('/api/v1/npw/dashboard', dashboardRoute);
+app.use('/api/v1/npw', newsRoute);
 
 app.listen(PORT, () => {
   console.log(`✅ Server is running on port ${PORT}`);
