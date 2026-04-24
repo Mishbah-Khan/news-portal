@@ -1,7 +1,9 @@
 import News from '../models/News.model.js';
+import connectDB  from '../configs/database.config.js';
 
 const createNews = async (req, res) => {
   try {
+    await connectDB();
     const { title, description, category } = JSON.parse(req.body.data);
 
     // Check if user exists
@@ -29,12 +31,20 @@ const createNews = async (req, res) => {
       message: 'News CREATED SUCCESSFULLY',
       data: news,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Something went wrong',
+      error: error.message,
+    });
+  }
 };
 
 // NEW: Get all news with author details
 const getAllNews = async (req, res) => {
   try {
+    await connectDB();
     // Find all news, populate author details, sort by newest first
     const news = await News.find()
       .populate('author', 'name email') // This will get author's name and email from User model
@@ -59,6 +69,7 @@ const getAllNews = async (req, res) => {
 // NEW: Get single news by ID
 const getNewsById = async (req, res) => {
   try {
+    await connectDB();
     const { id } = req.params;
 
     const news = await News.findById(id).populate('author', 'name email');
@@ -88,6 +99,7 @@ const getNewsById = async (req, res) => {
 // NEW: Get news by category
 const getNewsByCategory = async (req, res) => {
   try {
+    await connectDB();
     const { category } = req.params;
 
     const news = await News.find({ category })
@@ -113,6 +125,7 @@ const getNewsByCategory = async (req, res) => {
 // NEW: Get latest 6 news (for homepage)
 const getLatestNews = async (req, res) => {
   try {
+    await connectDB();
     const news = await News.find()
       .populate('author', 'name email')
       .sort({ createdAt: -1 })
@@ -137,6 +150,7 @@ const getLatestNews = async (req, res) => {
 // NEW: Get logged-in user's own news (for dashboard)
 const getMyNews = async (req, res) => {
   try {
+    await connectDB();
     // Get user ID from headers (set by validateUser middleware)
     const userId = req.headers._id;
 
@@ -171,6 +185,7 @@ const getMyNews = async (req, res) => {
 // NEW: Update user's own news
 const updateMyNews = async (req, res) => {
   try {
+    await connectDB();
     const userId = req.headers._id;
     const { id } = req.params;
 
@@ -236,6 +251,7 @@ const updateMyNews = async (req, res) => {
 // NEW: Delete user's own news
 const deleteMyNews = async (req, res) => {
   try {
+    await connectDB();
     const userId = req.headers._id;
     const { id } = req.params;
 
@@ -283,6 +299,7 @@ const deleteMyNews = async (req, res) => {
 // NEW: Get dashboard stats for logged-in user
 const getMyDashboardStats = async (req, res) => {
   try {
+    await connectDB();
     const userId = req.headers._id;
 
     if (!userId) {
